@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "785450236237",
+    "project_id": "practiceatthong",
+    "storage_bucket": "practiceatthong.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:785450236237:android:0d6012c09f14f229765f04",
+        "android_client_info": {
+          "package_name": "com.example.attendance_app_final"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "785450236237-fsqe71kp58jcbsq0kaeburctqe9vrpn1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFllzsckp8hi6SbOBVF96Etti4uW4l8QU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "785450236237-fsqe71kp58jcbsq0kaeburctqe9vrpn1.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "785450236237-88c5n6nr00vr110q33mu4gtj9flf2q1u.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.attendanceAppFinal.RunnerTests"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
