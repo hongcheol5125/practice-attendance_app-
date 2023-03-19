@@ -10,6 +10,10 @@ class CalendarPage extends StatefulWidget {
 class _CalendarPageState extends State<CalendarPage> {
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Scaffold(
+      body: Center(
+        child: Text('드디어 Text 쓸 때 child 쓴다는걸 기억했다!'),
+      ),
+    );
   }
 }
