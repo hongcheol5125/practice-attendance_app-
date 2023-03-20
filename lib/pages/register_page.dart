@@ -12,10 +12,10 @@ class AddUser extends StatelessWidget {
   Widget build(BuildContext context) {
     CollectionReference users = FirebaseFirestore.instance.collection('users');
 
-    Future<void> addUser() async{
+    Future<void> addUser() async {
       return await users
           .add({
-            'id': id, 
+            'id': id,
             'password': password,
           })
           .then((value) => print("User Added"))
@@ -45,15 +45,28 @@ class _RegisterPageState extends State<RegisterPage> {
   final String id = '';
   final String password = '';
 
-  
+  registerUserAtFireStore({
+    required String id,
+    required String password,
+  }) {
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(id)
+        .set({
+          'id': id,
+          'password': password,
+        })
+        .then((value) => print("User Added"))
+        .catchError((error) => print("Failed to add user: $error"));
+  }
 
-     Future<bool> isIDExist({required String id}) async {
+  Future<bool> isIDExist({required String id}) async {
     bool isExist = false;
     await FirebaseFirestore.instance.collection('users').get().then((value) {
       List<DocumentSnapshot> docs = value.docs.toList();
       docs.forEach((element) {
         Map<String, dynamic> docMap = element.data() as Map<String, dynamic>;
-        if (docMap["id"] == id) {  
+        if (docMap["id"] == id) {
           isExist = true;
         }
       });
@@ -61,15 +74,12 @@ class _RegisterPageState extends State<RegisterPage> {
     return isExist;
   }
 
-
-showSnackBar(String text) {
-  SnackBar snackBar = SnackBar(
-    content: Text(text),
-  );
-ScaffoldMessenger.of(context).showSnackBar(snackBar);
-}
-
-
+  showSnackBar(String text) {
+    SnackBar snackBar = SnackBar(
+      content: Text(text),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +89,7 @@ ScaffoldMessenger.of(context).showSnackBar(snackBar);
         title: Text('회원가입'),
       ),
       body: GestureDetector(
-        onTap:() => FocusScope.of(context).unfocus(),
+        onTap: () => FocusScope.of(context).unfocus(),
         child: SingleChildScrollView(
           child: Column(
             children: [
@@ -173,18 +183,22 @@ ScaffoldMessenger.of(context).showSnackBar(snackBar);
               MaterialButton(
                 color: Colors.orange,
                 child: Text('회원가입'),
-                onPressed: () async{
-                  if(_idController.text == '' || _pwController.text == '' || _confirmPwController.text == '') {
-                  showSnackBar("빈 칸을 입력해주세요");
-                  }
+                onPressed: () async {
+                  if (_idController.text == '' ||
+                      _pwController.text == '' ||
+                      _confirmPwController.text == '') {
+                    showSnackBar("빈 칸을 입력해주세요");
+                  } else{
                   bool isExist = await isIDExist(id: _idController.text);
-                  if(isExist == false) {
-                     AddUser(id: _idController.text , password: _pwController.text);
+                  if (isExist == false) {
+                    registerUserAtFireStore(
+                      id: _idController.text,
+                      password: _pwController.text,
+                    );
                     showSnackBar('가입을 축하드립니다!');
-                  }else {
+                  } else {
                     showSnackBar('이미 존재하는 아이디입니다.');
-                  }
-                  
+                  }}
                 },
               ),
             ],
@@ -194,6 +208,3 @@ ScaffoldMessenger.of(context).showSnackBar(snackBar);
     );
   }
 }
-
-
-
