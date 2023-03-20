@@ -45,11 +45,11 @@ class _RegisterPageState extends State<RegisterPage> {
   final String id = '';
   final String password = '';
 
-  registerUserAtFireStore({
+  Future registerUserAtFireStore({
     required String id,
     required String password,
-  }) {
-    FirebaseFirestore.instance
+  }) async{
+    await FirebaseFirestore.instance
         .collection('users')
         .doc(id)
         .set({
@@ -191,7 +191,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   } else{
                   bool isExist = await isIDExist(id: _idController.text);
                   if (isExist == false) {
-                    registerUserAtFireStore(
+                    await registerUserAtFireStore(
                       id: _idController.text,
                       password: _pwController.text,
                     );

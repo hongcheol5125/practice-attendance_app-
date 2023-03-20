@@ -1,5 +1,6 @@
 import 'package:attendance_app_final/pages/calendar_page.dart';
 import 'package:attendance_app_final/pages/register_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -29,6 +30,13 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  showSnackBar(String text) {
+    SnackBar snackBar = SnackBar(
+      content: Text(text),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,7 +47,8 @@ class _HomePageState extends State<HomePage> {
             children: [
               Image.asset('assets/imgs/alcohol.jpg'),
               Padding(
-                padding: const EdgeInsets.only(left: 15.0, right: 15.0, top: 15.0),
+                padding:
+                    const EdgeInsets.only(left: 15.0, right: 15.0, top: 15.0),
                 child: Row(
                   children: [
                     Text(
@@ -64,7 +73,8 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 15.0, right: 15.0, top: 15.0),
+                padding:
+                    const EdgeInsets.only(left: 15.0, right: 15.0, top: 15.0),
                 child: Row(
                   children: [
                     Text(
@@ -76,7 +86,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     Expanded(
                       child: TextField(
-                        controller: _idController,
+                        controller: _pwController,
                         decoration: InputDecoration(
                           hintText: 'Write down your id',
                           border: OutlineInputBorder(
@@ -109,8 +119,30 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                       ),
-                      onPressed: () {
-                        return gotoCalendarPage();
+                      onPressed: () async{
+                        String? idAtFirebase;
+                        String? pwAtFirebase;
+                        if(_idController.text == '' || _pwController.text == '') {
+                          showSnackBar('아이디 또는 비밀번호를 입력해 주세요');
+                        }else{
+                          await FirebaseFirestore.instance.collection('users').doc(_idController.text).get().then((value) {
+                            if(value.exists){
+                              Map <String, dynamic> data =
+                              value.data() as Map<String, dynamic>;
+                              idAtFirebase = data['id'];
+                              pwAtFirebase = data['password'];
+                            }
+                          });
+                          if (idAtFirebase != _idController.text) {
+                          showSnackBar("아이디가 존재하지 않습니다");
+                        } else {
+                          if (pwAtFirebase != _pwController.text) {
+                            showSnackBar("비밀번호가 일치하지 않습니다");
+                          } else {
+                            gotoCalendarPage();
+                          }
+                        }
+                        }
                       },
                     ),
                   ),
@@ -123,7 +155,7 @@ class _HomePageState extends State<HomePage> {
                 child: Text(
                   '회원가입',
                   style: TextStyle(
-                    fontWeight : FontWeight.bold,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
