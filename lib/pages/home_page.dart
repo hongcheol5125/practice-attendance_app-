@@ -119,7 +119,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                       ),
-                      onPressed: () async{
+                      onPressed: () async{   // async와 await를 안하면 firestore에서 자료를 가져오는 시간이 오래 걸리기 때문에 아래 코드가 먼저 실행이 되어서 에러 뜬다
                         String? idAtFirebase;
                         String? pwAtFirebase;
                         if(_idController.text == '' || _pwController.text == '') {
@@ -139,7 +139,7 @@ class _HomePageState extends State<HomePage> {
                           if (pwAtFirebase != _pwController.text) {
                             showSnackBar("비밀번호가 일치하지 않습니다");
                           } else {
-                            gotoCalendarPage();
+                            gotoCalendarPage();  
                           }
                         }
                         }
