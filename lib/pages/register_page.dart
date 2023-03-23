@@ -1,35 +1,8 @@
+import 'package:attendance_app_final/model/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
-class AddUser extends StatelessWidget {
-  final String id;
-  final String password;
-
-  AddUser({required this.id, required this.password});
-
-  @override
-  Widget build(BuildContext context) {
-    CollectionReference users = FirebaseFirestore.instance.collection('users');
-
-    Future<void> addUser() async {
-      return await users
-          .add({
-            'id': id,
-            'password': password,
-          })
-          .then((value) => print("User Added"))
-          .catchError((error) => print("Failed to add user: $error"));
-    }
-
-    return MaterialButton(
-      onPressed: addUser,
-      child: Text(
-        "회원가입",
-      ),
-    );
-  }
-}
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -46,16 +19,12 @@ class _RegisterPageState extends State<RegisterPage> {
   final String password = '';
 
   Future registerUserAtFireStore({
-    required String id,
-    required String password,
+    required User user
   }) async{
     await FirebaseFirestore.instance
         .collection('users')
         .doc(id)
-        .set({
-          'id': id,
-          'password': password,
-        })
+        .set(user.toJson())
         .then((value) => print("User Added"))
         .catchError((error) => print("Failed to add user: $error"));
   }
@@ -66,7 +35,8 @@ class _RegisterPageState extends State<RegisterPage> {
       List<DocumentSnapshot> docs = value.docs.toList();
       docs.forEach((element) {
         Map<String, dynamic> docMap = element.data() as Map<String, dynamic>;
-        if (docMap["id"] == id) {
+        User _user = User.fromJson(docMap);
+        if (_user.id == id) {
           isExist = true;
         }
       });
@@ -191,9 +161,10 @@ class _RegisterPageState extends State<RegisterPage> {
                   } else{
                   bool isExist = await isIDExist(id: _idController.text);
                   if (isExist == false) {
+                    User _user;
+                    _user = User(id: _idController.text, password: _pwController.text);
                     await registerUserAtFireStore(
-                      id: _idController.text,
-                      password: _pwController.text,
+                      user: _user
                     );
                     showSnackBar('가입을 축하드립니다!');
                   } else {

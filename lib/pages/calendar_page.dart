@@ -28,7 +28,6 @@ class _CalendarPageState extends State<CalendarPage> {
           children: [
             SizedBox(height: 10),
             TableCalendar(
-              locale: 'ko_KR',
               firstDay: DateTime.utc(2021, 1, 1),
               lastDay: DateTime.utc(2030, 12, 31),
               focusedDay: focusedDay,
