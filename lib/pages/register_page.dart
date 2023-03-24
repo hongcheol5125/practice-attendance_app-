@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
-
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
 
@@ -17,13 +16,12 @@ class _RegisterPageState extends State<RegisterPage> {
   TextEditingController _confirmPwController = TextEditingController();
   final String id = '';
   final String password = '';
+  final String confirmPassword = '';
 
-  Future registerUserAtFireStore({
-    required User user
-  }) async{
+  Future registerUserAtFireStore({required User user}) async {
     await FirebaseFirestore.instance
         .collection('users')
-        .doc(id)
+        .doc(user.id)
         .set(user.toJson())
         .then((value) => print("User Added"))
         .catchError((error) => print("Failed to add user: $error"));
@@ -158,18 +156,24 @@ class _RegisterPageState extends State<RegisterPage> {
                       _pwController.text == '' ||
                       _confirmPwController.text == '') {
                     showSnackBar("빈 칸을 입력해주세요");
-                  } else{
-                  bool isExist = await isIDExist(id: _idController.text);
-                  if (isExist == false) {
-                    User _user;
-                    _user = User(id: _idController.text, password: _pwController.text);
-                    await registerUserAtFireStore(
-                      user: _user
-                    );
-                    showSnackBar('가입을 축하드립니다!');
                   } else {
-                    showSnackBar('이미 존재하는 아이디입니다.');
-                  }}
+                    if (_pwController.text != _confirmPwController.text) {
+                      showSnackBar('비밀번호가 일치하지 않습니다.');
+                    } else {
+                      bool isExist = await isIDExist(id: _idController.text);
+                      if (isExist == true) {
+                        showSnackBar('이미 존재하는 아이디입니다.');
+                      } else {
+                        User _user = User(
+                          id: _idController.text,
+                          password: _pwController.text,
+                          type: '학생',
+                        );
+                        await registerUserAtFireStore(user: _user);
+                        showSnackBar('가입을 축하드립니다!');
+                      }
+                    }
+                  }
                 },
               ),
             ],
