@@ -1,3 +1,4 @@
+import 'package:attendance_app_final/pages/calendar_page(T).dart';
 import 'package:attendance_app_final/pages/calendar_page.dart';
 import 'package:attendance_app_final/pages/register_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -27,6 +28,14 @@ class _HomePageState extends State<HomePage> {
       MaterialPageRoute(
         builder: (context) => RegisterPage(),
       ),
+    );
+  }
+
+  gotoCalendarPageTeacher() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => CalendarPageTeacher(),
+      )
     );
   }
 
@@ -119,29 +128,41 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                       ),
-                      onPressed: () async{   // async와 await를 안하면 firestore에서 자료를 가져오는 시간이 오래 걸리기 때문에 아래 코드가 먼저 실행이 되어서 에러 뜬다
+                      onPressed: () async {
+                        // async와 await를 안하면 firestore에서 자료를 가져오는 시간이 오래 걸리기 때문에 아래 코드가 먼저 실행이 되어서 에러 뜬다
                         String? idAtFirebase;
                         String? pwAtFirebase;
-                        if(_idController.text == '' || _pwController.text == '') {
+                        String? typeAtFirebse;
+                        if (_idController.text == '' ||
+                            _pwController.text == '') {
                           showSnackBar('아이디 또는 비밀번호를 입력해 주세요');
-                        }else{
-                          await FirebaseFirestore.instance.collection('users').doc(_idController.text).get().then((value) {
-                            if(value.exists){
-                              Map <String, dynamic> data =
-                              value.data() as Map<String, dynamic>;
+                        } else {
+                          await FirebaseFirestore.instance
+                              .collection('users')
+                              .doc(_idController.text)
+                              .get()
+                              .then((value) {
+                            if (value.exists) {
+                              Map<String, dynamic> data =
+                                  value.data() as Map<String, dynamic>;
                               idAtFirebase = data['id'];
                               pwAtFirebase = data['password'];
+                              typeAtFirebse = data['type'];
                             }
                           });
                           if (idAtFirebase != _idController.text) {
-                          showSnackBar("아이디가 존재하지 않습니다");
-                        } else {
-                          if (pwAtFirebase != _pwController.text) {
-                            showSnackBar("비밀번호가 일치하지 않습니다");
+                            showSnackBar("아이디가 존재하지 않습니다");
                           } else {
-                            gotoCalendarPage();  
+                            if (pwAtFirebase != _pwController.text) {
+                              showSnackBar("비밀번호가 일치하지 않습니다");
+                            } else {
+                              if (typeAtFirebse == '학생') {
+                                gotoCalendarPage();
+                              } else{
+                                gotoCalendarPageTeacher();
+                              }
+                            }
                           }
-                        }
                         }
                       },
                     ),
