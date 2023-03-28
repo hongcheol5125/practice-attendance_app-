@@ -1,3 +1,5 @@
+import 'package:attendance_app_final/model/myevents.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -36,6 +38,15 @@ class _CalendarPageState extends State<CalendarPage> {
   void dispose() {
     _eventController.dispose();
     super.dispose();
+  }
+
+  Future EnterEventAtFirebase( MyEvents myEvents) async {
+    await FirebaseFirestore.instance
+        .collection('myevents')
+        .doc(myEvents.event)
+        .set(myEvents.toJson())
+        .then((value) => print("User Added"))
+        .catchError((error) => print("Failed to add user: $error"));
   }
 
   @override
@@ -85,16 +96,17 @@ class _CalendarPageState extends State<CalendarPage> {
               context: context,
               builder: (context) => AlertDialog(
                 title: Text('Add Event'),
-                content: TextField(controller: _eventController),
+                content: TextField(
+                  controller: _eventController,
+                ),
                 actions: [
                   TextButton(
                       onPressed: () => Navigator.pop(context),
                       child: Text('Cancel')),
                   TextButton(
                     child: Text('Ok'),
-                    onPressed: () {
+                    onPressed: () async{
                       if (_eventController.text.isEmpty) {
-                        
                       } else {
                         if (selectedEvents![_selectedDay] != null) {
                           selectedEvents![_selectedDay]
@@ -103,12 +115,15 @@ class _CalendarPageState extends State<CalendarPage> {
                           selectedEvents![_selectedDay] = [
                             Event(title: _eventController.text)
                           ];
+                          MyEvents _myEvents = MyEvents(
+                            event: _eventController.text,
+                            date: DateTime.now(),
+                          );
+                          await EnterEventAtFirebase(_myEvents);
                         }
                         Navigator.pop(context);
                         _eventController.clear();
-                        setState(() {
-                          
-                        });
+                        setState(() {});
                         return;
                       }
                     },
