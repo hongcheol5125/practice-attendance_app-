@@ -25,8 +25,10 @@ class _CalendarPageState extends State<CalendarPage> {
   TextEditingController _eventController = TextEditingController();
 
   @override
-  void initState() {
+  void initState() async{
     selectedEvents = {};
+    // firebase에서 불러오는 메소드 호출!(await 이용해서 기다리게 강요시킨 후 build 실행시키기)
+    await scheduleFromFirestore();
     super.initState();
   }
 
@@ -40,10 +42,10 @@ class _CalendarPageState extends State<CalendarPage> {
     super.dispose();
   }
 
-  Future EnterEventAtFirebase( MyEvents myEvents) async {
+  Future EnterEventAtFirebase(MyEvents myEvents) async {
     await FirebaseFirestore.instance
         .collection('myevents')
-        .doc(myEvents.event)
+        .doc(myEvents.date.toString())
         .set(myEvents.toJson())
         .then((value) => print("User Added"))
         .catchError((error) => print("Failed to add user: $error"));
@@ -105,7 +107,7 @@ class _CalendarPageState extends State<CalendarPage> {
                       child: Text('Cancel')),
                   TextButton(
                     child: Text('Ok'),
-                    onPressed: () async{
+                    onPressed: () async {
                       if (_eventController.text.isEmpty) {
                       } else {
                         if (selectedEvents![_selectedDay] != null) {
@@ -115,12 +117,13 @@ class _CalendarPageState extends State<CalendarPage> {
                           selectedEvents![_selectedDay] = [
                             Event(title: _eventController.text)
                           ];
-                          MyEvents _myEvents = MyEvents(
-                            event: _eventController.text,
-                            date: DateTime.now(),
-                          );
-                          await EnterEventAtFirebase(_myEvents);
                         }
+                        MyEvents _myEvents = MyEvents(
+                          event: _eventController.text,
+                          date: _selectedDay,
+                        );
+                        await EnterEventAtFirebase(_myEvents);
+
                         Navigator.pop(context);
                         _eventController.clear();
                         setState(() {});
@@ -138,5 +141,42 @@ class _CalendarPageState extends State<CalendarPage> {
         ],
       ),
     );
+  }
+
+  Future scheduleFromFirestore() async {
+   await FirebaseFirestore.instance
+        .collection('myevents')
+        .get().then((value) {
+          List<DocumentSnapshot> testValue = value.docs;
+          testValue.forEach((element) {
+            Map<String, dynamic> dbData = element.data() as Map<String, dynamic>;
+            print(dbData['date'].runtimeType);
+            
+            String stringDate = dbData['date'] as String;
+
+            DateTime selectedDay;
+
+            // int.parse()는 숫자로만 된 String을 int로 바꿔줌
+            int year = int.parse( stringDate.substring(0, 3));
+            int month = int.parse(stringDate.substring(5, 6));
+            int day = int.parse(stringDate.substring(8, 9));
+            selectedDay = DateTime(year, month, day);
+
+            if (selectedEvents![_selectedDay] != null) {
+                          selectedEvents![_selectedDay]
+                              ?.add(Event(title: dbData['event']));
+                        } else {
+                          selectedEvents![_selectedDay] = [
+                            Event(title: dbData['event'])
+                          ];
+                        }
+            
+          });
+
+          
+
+          print('#####################');
+        });
+        
   }
 }
