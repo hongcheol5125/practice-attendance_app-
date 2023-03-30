@@ -25,15 +25,16 @@ class _CalendarPageState extends State<CalendarPage> {
   TextEditingController _eventController = TextEditingController();
 
   @override
-  void initState() async{
+  void initState() {
     selectedEvents = {};
     // firebase에서 불러오는 메소드 호출!(await 이용해서 기다리게 강요시킨 후 build 실행시키기)
-    await scheduleFromFirestore();
+   scheduleFromFirestore();
     super.initState();
   }
 
   List<Event> _getEventsfromDay(DateTime date) {
-    return selectedEvents![date] ?? [];
+    DateTime _date = DateTime(date.year, date.month,date.day);
+    return selectedEvents![_date] ?? [];
   }
 
   @override
@@ -42,10 +43,10 @@ class _CalendarPageState extends State<CalendarPage> {
     super.dispose();
   }
 
-  Future EnterEventAtFirebase(MyEvents myEvents) async {
-    await FirebaseFirestore.instance
+   enterEventAtFirebase(MyEvents myEvents)  {
+     FirebaseFirestore.instance
         .collection('myevents')
-        .doc(myEvents.date.toString())
+        .doc(DateTime.now().toString())
         .set(myEvents.toJson())
         .then((value) => print("User Added"))
         .catchError((error) => print("Failed to add user: $error"));
@@ -92,7 +93,7 @@ class _CalendarPageState extends State<CalendarPage> {
           ),
           // event 입력하면 달력 아래에 뜨게 만드는 코드(1)
           ..._getEventsfromDay(_selectedDay)
-              .map((Event event) => ListTile(title: Text(event.title))),
+              .map((Event event) => ListTile(title: Text(event.title),),),
           FloatingActionButton.extended(
             onPressed: () => showDialog(
               context: context,
@@ -110,20 +111,22 @@ class _CalendarPageState extends State<CalendarPage> {
                     onPressed: () async {
                       if (_eventController.text.isEmpty) {
                       } else {
-                        if (selectedEvents![_selectedDay] != null) {
-                          selectedEvents![_selectedDay]
+                       DateTime selectedDayWithoutZ = DateTime(_selectedDay.year,_selectedDay.month,_selectedDay.day);
+                        if (selectedEvents![selectedDayWithoutZ] != null) {
+                          selectedEvents![selectedDayWithoutZ]
                               ?.add(Event(title: _eventController.text));
                         } else {
-                          selectedEvents![_selectedDay] = [
+                          selectedEvents![selectedDayWithoutZ] = [
                             Event(title: _eventController.text)
                           ];
                         }
                         MyEvents _myEvents = MyEvents(
                           event: _eventController.text,
-                          date: _selectedDay,
+                          date: selectedDayWithoutZ,
                         );
-                        await EnterEventAtFirebase(_myEvents);
+                         enterEventAtFirebase(_myEvents);
 
+                        // ignore: use_build_context_synchronously
                         Navigator.pop(context);
                         _eventController.clear();
                         setState(() {});
@@ -157,16 +160,16 @@ class _CalendarPageState extends State<CalendarPage> {
             DateTime selectedDay;
 
             // int.parse()는 숫자로만 된 String을 int로 바꿔줌
-            int year = int.parse( stringDate.substring(0, 3));
-            int month = int.parse(stringDate.substring(5, 6));
-            int day = int.parse(stringDate.substring(8, 9));
+            int year = int.parse( stringDate.substring(0, 4));
+            int month = int.parse(stringDate.substring(5, 7));
+            int day = int.parse(stringDate.substring(8, 10));
             selectedDay = DateTime(year, month, day);
 
-            if (selectedEvents![_selectedDay] != null) {
-                          selectedEvents![_selectedDay]
+            if (selectedEvents![selectedDay] != null) {
+                          selectedEvents![selectedDay]
                               ?.add(Event(title: dbData['event']));
                         } else {
-                          selectedEvents![_selectedDay] = [
+                          selectedEvents![selectedDay] = [
                             Event(title: dbData['event'])
                           ];
                         }
@@ -174,7 +177,9 @@ class _CalendarPageState extends State<CalendarPage> {
           });
 
           
-
+setState(() {
+  
+});
           print('#####################');
         });
         
