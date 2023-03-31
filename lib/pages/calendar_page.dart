@@ -14,7 +14,7 @@ class CalendarPage extends StatefulWidget {
 
 class _CalendarPageState extends State<CalendarPage> {
   Map<DateTime, List<Event>>? selectedEvents;
-  CalendarFormat format = CalendarFormat.month;
+  CalendarFormat format = CalendarFormat.month;  // 2주씩 볼 수 있게 하는 코드
   DateTime _selectedDay = DateTime(
     DateTime.now().year,
     DateTime.now().month,
@@ -27,7 +27,7 @@ class _CalendarPageState extends State<CalendarPage> {
   @override
   void initState() {
     selectedEvents = {};
-    // firebase에서 불러오는 메소드 호출!(await 이용해서 기다리게 강요시킨 후 build 실행시키기)
+    // firebase에서 불러오는 메소드 호출!
    scheduleFromFirestore();
     super.initState();
   }
@@ -91,9 +91,14 @@ class _CalendarPageState extends State<CalendarPage> {
             },
             eventLoader: _getEventsfromDay,
           ),
+          
           // event 입력하면 달력 아래에 뜨게 만드는 코드(1)
-          ..._getEventsfromDay(_selectedDay)
-              .map((Event event) => ListTile(title: Text(event.title),),),
+          Expanded(
+            child: ListView(children: [..._getEventsfromDay(_selectedDay) //key(DateTime)
+                .map((Event event) => ListTile(title: Text(event.title))),],),
+          ),
+              
+
           FloatingActionButton.extended(
             onPressed: () => showDialog(
               context: context,
