@@ -14,7 +14,7 @@ class CalendarPageTeacher extends StatefulWidget {
 
 class _CalendarPageTeacherState extends State<CalendarPageTeacher> {
   Map<DateTime, List<Event>>? selectedEvents;
-  CalendarFormat format = CalendarFormat.month;  // 2주씩 볼 수 있게 하는 코드
+  CalendarFormat format = CalendarFormat.month; // 2주씩 볼 수 있게 하는 코드
   DateTime _selectedDay = DateTime(
     DateTime.now().year,
     DateTime.now().month,
@@ -28,12 +28,12 @@ class _CalendarPageTeacherState extends State<CalendarPageTeacher> {
   void initState() {
     selectedEvents = {};
     // firebase에서 불러오는 메소드 호출!
-   scheduleFromFirestore();
+    scheduleFromFirestore();
     super.initState();
   }
 
   List<Event> _getEventsfromDay(DateTime date) {
-    DateTime _date = DateTime(date.year, date.month,date.day);
+    DateTime _date = DateTime(date.year, date.month, date.day);
     return selectedEvents![_date] ?? [];
   }
 
@@ -43,8 +43,8 @@ class _CalendarPageTeacherState extends State<CalendarPageTeacher> {
     super.dispose();
   }
 
-   enterEventAtFirebase(MyEvents myEvents)  {
-     FirebaseFirestore.instance
+  enterEventAtFirebase(MyEvents myEvents) {
+    FirebaseFirestore.instance
         .collection('myevents')
         .doc(DateTime.now().toString())
         .set(myEvents.toJson())
@@ -91,13 +91,16 @@ class _CalendarPageTeacherState extends State<CalendarPageTeacher> {
             },
             eventLoader: _getEventsfromDay,
           ),
-          
+
           // event 입력하면 달력 아래에 뜨게 만드는 코드(1)
           Expanded(
-            child: ListView(children: [..._getEventsfromDay(_selectedDay) //key(DateTime)
-                .map((Event event) => ListTile(title: Text(event.title))),],),
+            child: ListView(
+              children: [
+                ..._getEventsfromDay(_selectedDay) //key(DateTime)
+                    .map((Event event) => ListTile(title: Text(event.title))),
+              ],
+            ),
           ),
-              
 
           FloatingActionButton.extended(
             onPressed: () => showDialog(
@@ -116,7 +119,10 @@ class _CalendarPageTeacherState extends State<CalendarPageTeacher> {
                     onPressed: () async {
                       if (_eventController.text.isEmpty) {
                       } else {
-                       DateTime selectedDayWithoutZ = DateTime(_selectedDay.year,_selectedDay.month,_selectedDay.day);
+                        DateTime selectedDayWithoutZ = DateTime(
+                            _selectedDay.year,
+                            _selectedDay.month,
+                            _selectedDay.day);
                         if (selectedEvents![selectedDayWithoutZ] != null) {
                           selectedEvents![selectedDayWithoutZ]
                               ?.add(Event(title: _eventController.text));
@@ -129,7 +135,7 @@ class _CalendarPageTeacherState extends State<CalendarPageTeacher> {
                           event: _eventController.text,
                           date: selectedDayWithoutZ,
                         );
-                         enterEventAtFirebase(_myEvents);
+                        enterEventAtFirebase(_myEvents);
 
                         // ignore: use_build_context_synchronously
                         Navigator.pop(context);
@@ -152,41 +158,30 @@ class _CalendarPageTeacherState extends State<CalendarPageTeacher> {
   }
 
   Future scheduleFromFirestore() async {
-   await FirebaseFirestore.instance
-        .collection('myevents')
-        .get().then((value) {
-          List<DocumentSnapshot> testValue = value.docs;
-          testValue.forEach((element) {
-            Map<String, dynamic> dbData = element.data() as Map<String, dynamic>;
-            print(dbData['date'].runtimeType);
-            
-            String stringDate = dbData['date'] as String;
+    await FirebaseFirestore.instance.collection('myevents').get().then((value) {
+      List<DocumentSnapshot> testValue = value.docs;
+      testValue.forEach((element) {
+        Map<String, dynamic> dbData = element.data() as Map<String, dynamic>;
+        print(dbData['date'].runtimeType);
 
-            DateTime selectedDay;
+        String stringDate = dbData['date'] as String;
 
-            // int.parse()는 숫자로만 된 String을 int로 바꿔줌
-            int year = int.parse( stringDate.substring(0, 4));
-            int month = int.parse(stringDate.substring(5, 7));
-            int day = int.parse(stringDate.substring(8, 10));
-            selectedDay = DateTime(year, month, day);
+        DateTime selectedDay;
 
-            if (selectedEvents![selectedDay] != null) {
-                          selectedEvents![selectedDay]
-                              ?.add(Event(title: dbData['event']));
-                        } else {
-                          selectedEvents![selectedDay] = [
-                            Event(title: dbData['event'])
-                          ];
-                        }
-            
-          });
+        // int.parse()는 숫자로만 된 String을 int로 바꿔줌
+        int year = int.parse(stringDate.substring(0, 4));
+        int month = int.parse(stringDate.substring(5, 7));
+        int day = int.parse(stringDate.substring(8, 10));
+        selectedDay = DateTime(year, month, day);
 
-          
-setState(() {
-  
-});
-          print('#####################');
-        });
-        
+        if (selectedEvents![selectedDay] != null) {
+          selectedEvents![selectedDay]?.add(Event(title: dbData['event']));
+        } else {
+          selectedEvents![selectedDay] = [Event(title: dbData['event'])];
+        }
+      });
+
+      setState(() {});
+    });
   }
 }
