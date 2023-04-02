@@ -1,4 +1,6 @@
 import 'package:attendance_app_final/model/myevents.dart';
+import 'package:attendance_app_final/pages/qr_page.dart';
+import 'package:attendance_app_final/pages/word_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -50,6 +52,22 @@ class _CalendarPageTeacherState extends State<CalendarPageTeacher> {
         .set(myEvents.toJson())
         .then((value) => print("User Added"))
         .catchError((error) => print("Failed to add user: $error"));
+  }
+
+  goToQrPage() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => QrPage(),
+      ),
+    );
+  }
+
+  goToWordPage() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => WordPage(),
+      ),
+    );
   }
 
   @override
@@ -151,7 +169,45 @@ class _CalendarPageTeacherState extends State<CalendarPageTeacher> {
             label: Text('Add Event'),
             icon: Icon(Icons.add),
           ),
-          BottomAppBar(child: Text('단어게임 / QR코드 등 들어가는 버튼 만들거야!')),
+
+          // 아래 앱바를 꽉 채우는 코드
+          // BottomAppBar(
+          //   color: Colors.green[300],
+          //   child: IconTheme(
+          //     data: IconThemeData(color: Theme.of(context).colorScheme.onPrimary),
+          //     child: Row(
+          //       children: <Widget>[
+          //         IconButton(onPressed: (){}, icon: Icon(Icons.qr_code_2),iconSize: 40,),
+          //         Spacer(),
+          //         IconButton(onPressed: (){}, icon: Icon(Icons.wordpress),iconSize: 40,),
+          //       ],
+          //     ),
+          //   ),
+          // ),
+
+          Row(
+            children: [
+              BottomAppBar(
+                  color: Colors.green,
+                  child: IconButton(
+                    onPressed: () {
+                      goToQrPage();
+                    },
+                    icon: Icon(Icons.qr_code_2),
+                    iconSize: 40,
+                  )),
+              Spacer(),
+              BottomAppBar(
+                  color: Colors.green,
+                  child: IconButton(
+                    onPressed: () {
+                      goToWordPage();
+                    },
+                    icon: Icon(Icons.wordpress),
+                    iconSize: 40,
+                  )),
+            ],
+          )
         ],
       ),
     );

@@ -1,3 +1,5 @@
+import 'package:attendance_app_final/pages/qr_page.dart';
+import 'package:attendance_app_final/pages/word_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -34,30 +36,46 @@ class _CalendarPageState extends State<CalendarPage> {
     return selectedEvents![_date] ?? [];
   }
 
+  goToQrPage() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => QrPage(),
+      ),
+    );
+  }
+
+  goToWordPage() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => WordPage(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(
-            '일정표',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          backgroundColor: Colors.orange,
+      appBar: AppBar(
+        title: Text(
+          '일정표',
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        body: Column(
-          children: [
-            SizedBox(height: 10),
-            TableCalendar(
-              focusedDay: DateTime.now(),
-              firstDay: DateTime.utc(2020, 1, 1),
-              lastDay: DateTime.utc(2025, 12, 31),
-              calendarFormat: format,
-              onFormatChanged: (CalendarFormat _format) {
-                setState(() {
-                  format = _format;
-                });
-              },
-              startingDayOfWeek: StartingDayOfWeek.monday,
+        backgroundColor: Colors.orange,
+      ),
+      body: Column(
+        children: [
+          SizedBox(height: 10),
+          TableCalendar(
+            focusedDay: DateTime.now(),
+            firstDay: DateTime.utc(2020, 1, 1),
+            lastDay: DateTime.utc(2025, 12, 31),
+            calendarFormat: format,
+            onFormatChanged: (CalendarFormat _format) {
+              setState(() {
+                format = _format;
+              });
+            },
+            startingDayOfWeek: StartingDayOfWeek.monday,
             selectedDayPredicate: (day) {
               return isSameDay(_selectedDay, day);
             },
@@ -68,9 +86,9 @@ class _CalendarPageState extends State<CalendarPage> {
                 _focusedDay = focusedDay;
               });
             },
-              eventLoader: _getEventsfromDay,
-            ),
-            Expanded(
+            eventLoader: _getEventsfromDay,
+          ),
+          Expanded(
             child: ListView(
               children: [
                 ..._getEventsfromDay(_selectedDay) //key(DateTime)
@@ -78,8 +96,34 @@ class _CalendarPageState extends State<CalendarPage> {
               ],
             ),
           ),
-          ],
-        ));
+          BottomAppBar(
+            color: Colors.green,
+            child: IconTheme(
+              data:
+                  IconThemeData(color: Theme.of(context).colorScheme.onPrimary),
+              child: Row(
+                children: <Widget>[
+                  IconButton(
+                    onPressed: () {
+                      goToQrPage();
+                    },
+                    icon: Icon(Icons.qr_code_2),
+                    iconSize: 40,
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      goToWordPage();
+                    },
+                    icon: Icon(Icons.wordpress),
+                    iconSize: 40,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Future scheduleFromFirestore() async {
