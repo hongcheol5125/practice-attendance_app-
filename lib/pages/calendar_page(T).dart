@@ -1,5 +1,5 @@
 import 'package:attendance_app_final/model/myevents.dart';
-import 'package:attendance_app_final/pages/qr_page.dart';
+import 'package:attendance_app_final/pages/qr_page(T).dart';
 import 'package:attendance_app_final/pages/word_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -54,10 +54,10 @@ class _CalendarPageTeacherState extends State<CalendarPageTeacher> {
         .catchError((error) => print("Failed to add user: $error"));
   }
 
-  goToQrPage() {
+  goToQrPageTeacher() {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => QrPage(),
+        builder: (context) => QrPageTeacher(),
       ),
     );
   }
@@ -73,6 +73,7 @@ class _CalendarPageTeacherState extends State<CalendarPageTeacher> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset : false,
       appBar: AppBar(
         title: Text(
           '일 정 표',
@@ -191,7 +192,7 @@ class _CalendarPageTeacherState extends State<CalendarPageTeacher> {
                   color: Colors.green,
                   child: IconButton(
                     onPressed: () {
-                      goToQrPage();
+                      goToQrPageTeacher();
                     },
                     icon: Icon(Icons.qr_code_2),
                     iconSize: 40,
