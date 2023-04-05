@@ -4,6 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
+import '../model/number.dart';
+
 class QrPageTeacher extends StatefulWidget {
   const QrPageTeacher({super.key});
 
@@ -13,6 +15,16 @@ class QrPageTeacher extends StatefulWidget {
 
 class _QrPageTeacherState extends State<QrPageTeacher> {
   String randomNumbers = '1';
+
+  Future registerNumberAtFirestore({required Number number}) async {
+    await FirebaseFirestore.instance
+        .collection('random_number')
+        .doc(number.number)
+        .set(number.toJson())
+        .then((value) => print("User Added"))
+        .catchError((error) => print("Failed to add user: $error"));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,7 +42,11 @@ class _QrPageTeacherState extends State<QrPageTeacher> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async{
+                  Number _number = Number(
+                    number: randomNumbers);
+                    await registerNumberAtFirestore(number: _number);
+
                   return onRandomNumberGenerate();
                 },
                 child: Text('랜덤숫자 생성!'),
